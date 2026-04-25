@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import Layout from '@/components/Layout'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label'
 import { ArrowLeft } from 'lucide-react'
 
 export default function UserForm() {
+  const { id } = useParams()
   const navigate = useNavigate()
+  const isEditing = !!id
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
@@ -18,6 +20,36 @@ export default function UserForm() {
     role: 'AGENT'
   })
 
+  useEffect(() => {
+    if (isEditing) {
+      loadUser(parseInt(id))
+    }
+  }, [id])
+
+  const loadUser = async (userId: number) => {
+    setIsLoading(true)
+    try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
+      const token = localStorage.getItem('smartseason_token')
+      const res = await fetch(`${apiBase}/api/users/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const user = await res.json()
+        setFormData({
+          name: user.name,
+          email: user.email,
+          password: '', // Don't pre-fill password
+          role: user.role.toUpperCase()
+        })
+      }
+    } catch (err) {
+      setError('Failed to load user data')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -26,18 +58,30 @@ export default function UserForm() {
     try {
       const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`${apiBase}/api/users`, {
-        method: 'POST',
+      
+      // Construct payload: only include password if it's provided (for new users or password changes)
+      const payload: any = {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role
+      }
+      
+      if (formData.password) {
+        payload.password = formData.password
+      }
+
+      const res = await fetch(isEditing ? `${apiBase}/api/users/${id}` : `${apiBase}/api/users`, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.message || 'Failed to create user')
+        throw new Error(data.message || 'Failed to save user')
       }
 
       navigate('/users')
@@ -57,14 +101,20 @@ export default function UserForm() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-secondary">Add New User</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-secondary">
+            {isEditing ? 'Edit User' : 'Add New User'}
+          </h1>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit}>
             <CardHeader>
               <CardTitle>User Details</CardTitle>
-              <CardDescription>Create a new account for an administrator or field agent.</CardDescription>
+              <CardDescription>
+                {isEditing 
+                  ? 'Update account details or change system permissions.' 
+                  : 'Create a new account for an administrator or field agent.'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {error && (
@@ -101,10 +151,10 @@ export default function UserForm() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a secure password"
+                  placeholder={isEditing ? 'Leave blank to keep current' : 'Create a secure password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
+                  required={!isEditing}
                 />
               </div>
 
@@ -127,7 +177,7 @@ export default function UserForm() {
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Account'}
+                {isLoading ? 'Saving...' : (isEditing ? 'Update Account' : 'Create Account')}
               </Button>
             </CardFooter>
           </form>

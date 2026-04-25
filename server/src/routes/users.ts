@@ -78,6 +78,87 @@ router.post('/', async (req: AuthRequest, res) => {
   }
 })
 
+// Get single user (admin only)
+router.get('/:id', async (req: AuthRequest, res) => {
+  try {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' })
+    }
+
+    const { id } = req.params
+    const userId = parseInt(id)
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true
+      }
+    })
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json({
+      ...user,
+      role: user.role.toLowerCase()
+    })
+  } catch (error) {
+    console.error('Get user error:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// Update user (admin only)
+router.put('/:id', async (req: AuthRequest, res) => {
+  try {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' })
+    }
+
+    const { id } = req.params
+    const userId = parseInt(id)
+    const { email, password, name, role } = req.body
+
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } })
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    // Prepare update data
+    const updateData: any = {}
+    if (email) updateData.email = email
+    if (name) updateData.name = name
+    if (role) updateData.role = role.toUpperCase()
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10)
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true
+      }
+    })
+
+    res.json({
+      ...user,
+      role: user.role.toLowerCase()
+    })
+  } catch (error) {
+    console.error('Update user error:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 // Delete user (admin only)
 router.delete('/:id', async (req: AuthRequest, res) => {
   try {

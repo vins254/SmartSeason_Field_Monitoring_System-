@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/App'
 import { formatDate } from '@/lib/utils'
-import { Plus, Trash2, User as UserIcon } from 'lucide-react'
+import { Plus, Trash2, User as UserIcon, Pencil } from 'lucide-react'
 
 interface User {
   id: number
@@ -107,16 +107,27 @@ export default function Users() {
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
                     Joined {formatDate(u.createdAt)}
                   </p>
-                  {u.id !== currentUser?.id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-slate-400 hover:text-destructive"
-                      onClick={() => handleDelete(u.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-1">
+                    <Link to={`/users/${u.id}/edit`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-slate-400 hover:text-primary"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    {u.id !== currentUser?.id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-slate-400 hover:text-destructive"
+                        onClick={() => handleDelete(u.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))
