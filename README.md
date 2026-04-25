@@ -1,5 +1,13 @@
 # SmartSeason Field Monitoring System 🌾
 
+### 🌐 Live Demo: [https://smart-season-field-monitoring-syste-ochre.vercel.app/](https://smart-season-field-monitoring-syste-ochre.vercel.app/)
+
+#### 🔐 Demo Credentials:
+- **Administrator**: `admin@smartseason.com` / `admin123`
+- **Field Agent**: `agent@smartseason.com` / `agent123`
+
+---
+
 A professional, full-stack agricultural management platform built for farm coordinators and field agents. It provides real-time oversight of crop progress, agent accountability, and operational efficiency.
 
 ## 🖼️ System Preview
