@@ -1,5 +1,17 @@
 {
+  /*
+    TypeScript Node Configuration
+    
+    Purpose:
+    Configures TypeScript for the build tools (like vite.config.ts) that run 
+    in the Node.js environment.
+
+    How it works:
+    1. Targets ES2022 to match modern Node.js versions.
+    2. Only includes configuration files (vite.config.ts) rather than application source.
+  */
   "compilerOptions": {
+
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
     "lib": ["ES2023"],

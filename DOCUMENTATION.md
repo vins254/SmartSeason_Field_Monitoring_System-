@@ -1,97 +1,89 @@
-# Advanced Project Documentation: SmartSeason Field Monitoring System
+# 📚 Operational & Technical Documentation: SmartSeason
 
-## Project Overview
-The SmartSeason Field Monitoring System is a professional agricultural ERP tool designed to bridge the gap between farm coordinators (Admins) and those working in the fields (Field Agents). It replaces messy spreadsheets and verbal updates with a real-time, data-driven platform for tracking crop health and growth cycles.
-
----
-
-## Technical Stack & Rationale
-
-### ⚛️ Frontend: React 18 & Vite
-- **Rationale**: We chose Vite over Create-React-App for its lightning-fast HMR (Hot Module Replacement) and optimized build process. React's component-based architecture allows us to reuse UI elements like "Status Badges" and "Field Cards" across the entire app.
-- **Styling**: Tailwind CSS is used for all styling. It allowed us to implement a "Mobile-First" design without writing hundreds of lines of media queries.
-
-### 🚀 Backend: Node.js & Express
-- **Rationale**: A lightweight Express server is perfect for a RESTful API. It's easy to scale and has excellent support for JWT authentication.
-- **Environment**: We use `dotenv` to keep sensitive keys (like database passwords) out of the codebase.
-
-### 💾 Database: PostgreSQL & Prisma
-- **Rationale**: PostgreSQL is the gold standard for relational data. Prisma was chosen because it provides a **Type-safe Client**. This means if we change a field in the database, our code will immediately show an error if we're trying to access the old field name, preventing dozens of runtime bugs.
+## 🎯 Project Mission
+SmartSeason is an enterprise-grade agricultural ERP designed to eliminate information silos in farm management. It provides a robust framework for tracking crop development through standardized growth phases while ensuring complete accountability for field personnel.
 
 ---
 
-## Architecture & Why We Built It This Way
+## 🛠️ Technology Stack Deep-Dive
 
-### 1. The "14-Day Health" Logic (Automated Status)
-We implemented a dynamic status calculation rather than a static database field.
-- **The Feature**: Every time a field is loaded, the server calculates: `Current Time - Last Update Time`. If this exceeds 14 days, the status automatically flips to "At Risk".
-- **Why?**: Storing "Active" in the database would be a lie the moment the agent stops updating. By calculating it in real-time, the Admin *always* sees the absolute truth about field monitoring activity.
+### ⚛️ Reactive Frontend (React + Vite)
+- **TypeScript**: Used throughout the project to ensure data integrity. Interface definitions for `Field`, `User`, and `AuthContext` prevent common runtime type errors.
+- **Vite**: Chosen for its "Instant Server Start" and optimized Rollup-based build process.
+- **Client-Side Routing**: Handled by `react-router-dom`. 
+    - **Technical Fix**: To prevent the common "404 on refresh" issue in Single Page Applications, we've implemented both a server-side wildcard catch-all and a `vercel.json` rewrite configuration. This ensures that direct links and browser refreshes always resolve correctly back to the React application.
 
-### 2. Mandatory Agent Assignment
-- **The Feature**: A field cannot be created without an assigned agent.
-- **Why?**: In agricultural logistics, a "lost field" (one with no one assigned) is a massive financial risk. We enforced this at both the UI level and the API level to ensure accountability.
+### ⚙️ Scalable Backend (Node.js + Express)
+- **Middleware-First Architecture**: We use a custom `authenticateToken` middleware to secure every sensitive API route. It decodes JWTs and injects the `user` object into the Request, enabling Role-Based Access Control (RBAC).
+- **Security**: 
+    - Passwords: Salted and hashed using `bcryptjs` (Cost factor: 10).
+    - Session: 24-hour stateless JWT tokens.
 
-### 3. Full User Lifecycle Management (CRUD)
-- **The Feature**: Admins can not only create and delete users but also update their profile details (Name, Email, Role) and reset passwords.
-- **Why?**: Operational flexibility. Staff roles change, emails are updated, and passwords are forgotten. By providing a full management suite, the Admin has total control over the system's human resources without needing database access.
-
-### 4. Role-Based Navigation (RBAC)
-- **The Feature**: The "Users" and "Field Management" tools are hidden or blocked for Field Agents.
-- **Why?**: Agents should focus on their specific crops. By reducing "UI clutter" for agents, they can perform their updates faster while protecting sensitive administrative data.
+### 🐘 Data Persistence (PostgreSQL + Prisma)
+- **Schema Safety**: Prisma acts as our "Source of Truth." The `schema.prisma` file defines our relations, ensuring that if a User is deleted, we can't have "orphan" field updates without a valid owner (or handling the cascade).
+- **Connection Pooling**: Integrated with Supabase Transaction Bouncer to maintain high availability even during traffic spikes.
 
 ---
 
-## File Structure Deep-Dive
+## 🧠 Architectural Logic
 
-### Backend (`/server`)
-- `src/index.ts`: The entry point. It sets up the server, connects to the database, and registers health checks.
-- `src/routes/fields.ts`: This is where the heavy lifting happens. It manages the field lifecycle and status calculations.
-- `src/middleware/auth.ts`: Our security layer. It verifies the JWT token before letting any request reach the data.
+### 1. Dynamic Health Algorithm (Calculated State)
+Instead of storing a static status (e.g., "Active") in the database, the server computes it dynamically during the `GET` request:
+- **Logic**: `IF (Today - LastUpdate) > 14 days THEN status = AT_RISK`.
+- **Rational**: This prevents "false positives" in the dashboard. If an agent stops monitoring a field, the system automatically alerts the Admin through the UI without manual intervention.
 
-### Frontend (`/client`)
-- `src/App.tsx`: The "Brain". It manages the global authentication state and the routing state.
-- `src/components/Layout.tsx`: The "Frame". It provides the consistent sidebar, header, and mobile navigation responsive wrapper.
+### 2. Role-Based Access Control (RBAC)
+- **Admin**: Full CRUD access to the entire system, including user onboarding and field archiving.
+- **Agent**: Strictly restricted to viewing and reporting on fields specifically assigned to them.
+- **Implementation**: Managed via a `role` column in the User table and verified by backend route logic.
 
-## 🖼️ Visual Interface Guide
+### 3. SPA Persistence Strategy
+The application is designed to be "Refresh-Resilient." 
+- **Server-Side**: `app.get('*', ...)` ensures the Express server sends `index.html` for any unknown route.
+- **Cloud-Side**: `vercel.json` provides the same logic for production deployments on Vercel's edge network.
 
-### 1. Administration Hub
-The **Admin Dashboard** is designed for high-level monitoring. It features four quick-stats cards showing Total Fields, Active Fields, At-Risk Fields, and Completed cycles. The **Stage Distribution** bar chart provides a visual breakdown of the crop lifecycle across the entire organization.
+---
+
+## 📂 Codebase Navigation
+
+### `/server/src`
+- **[`index.ts`](file:///f:/Projects/field-monitoring-system/server/src/index.ts)**: Application entry point & SPA fallback handler.
+- **[`routes/fields.ts`](file:///f:/Projects/field-monitoring-system/server/src/routes/fields.ts)**: Core business logic for agricultural monitoring.
+- **[`routes/users.ts`](file:///f:/Projects/field-monitoring-system/server/src/routes/users.ts)**: Team directory and permission management.
+- **[`middleware/auth.ts`](file:///f:/Projects/field-monitoring-system/server/src/middleware/auth.ts)**: Security interceptors.
+
+### `/client/src`
+- **[`App.tsx`](file:///f:/Projects/field-monitoring-system/client/src/App.tsx)**: Global Auth Provider and route guard definitions.
+- **[`pages/Dashboard.tsx`](file:///f:/Projects/field-monitoring-system/client/src/pages/Dashboard.tsx)**: Statistical analysis and data visualization.
+- **[`lib/utils.ts`](file:///f:/Projects/field-monitoring-system/client/src/lib/utils.ts)**: Shared formatting and logic utilities.
+
+---
+
+## 🎨 Visual Interface Guide
+
+### 1. Administrative Oversight
+The **Admin Dashboard** provides high-level KPIs and growth stage distribution charts.
 ![Admin Dashboard](./screenshots/admin%20dashboard.png)
 
-### 2. Field Lifecycle Management
-The **Fields Listing** page allows coordinators to filter and manage agricultural assets. Each card displays the crop type, current stage (Planted, Growing, etc.), and a smart status badge. Admins can click "Add Field" to launch the creation modal.
-![Field Management](./screenshots/admin%20fields.png)
+### 2. Team Management
+The **User Directory** allows coordinators to manage access controls and monitor team growth.
+![User Management](./screenshots/user%20dashboard.png)
 
-### 3. Field Agent Workflow
-Agents have a streamlined view focusing only on their assigned fields. The **Agent Dashboard** prioritizes fields needing updates.
-![Agent Dashboard](./screenshots/agent%20dashboard.png)
-
-When an agent selects a field, they can submit a **Field Update**. This involves selecting the current growth stage and adding observational notes, which are then logged with a timestamp for the Admin to review.
-![Agent Field Update](./screenshots/agent%20field.png)
-
-### 4. Team & Account Management
-The **User Management** screen is where the organizational structure is maintained. Admins can view all accounts, their roles, and perform CRUD operations (Create, Update, Delete).
-![User Directory](./screenshots/user%20dashboard.png)
-
-The **Add/Edit User** form includes validation for unique emails and secure password handling.
-![Add User Form](./screenshots/add%20new%20user.png)
+### 3. Professional Field Updates
+The **Field Detail** view allows agents to submit chronological growth reports with observational notes.
+![Field Update](./screenshots/agent%20field.png)
 
 ---
 
-## Deployment Strategy
+## ☁️ Deployment Configuration
 
-### 🌐 Frontend (Vercel)
-Vercel was chosen for its excellent Vite support. It serves the static assets and handles the routing. We use the `VITE_API_BASE_URL` env variable to tell the frontend where the backend lives.
-
-### ☁️ Backend (Render)
-Render hosts the live Node.js process. We chose it because it's simpler than AWS but more powerful than basic shared hosting. It automatically rebuilds whenever you push code.
-
-### 🐘 Database (Supabase)
-Supabase provides a world-class PostgreSQL instance that's always on. By using their **Connection Pooling**, we can handle hundreds of concurrent server requests without exhausting the database's connection limit.
+| Environment Variable | Description | Example |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Prisma/Supabase Connection String | `postgresql://...` |
+| `JWT_SECRET` | Secret key for token signing | `your-long-secret-key` |
+| `VITE_API_BASE_URL` | URL of the running Node.js API | `https://api.yourdomain.com` |
 
 ---
 
-## Assumptions & Design Choices
-1. **Always Online**: The system assumes the user has an internet connection (common for modern agricultural sites with 4G/LTE coverage).
-2. **Standard Growth Phases**: We assumed a standard 4-phase growth cycle (Planted → Growing → Ready → Harvested). Extensions could be added for specialized crops like vineyards.
-3. **Admin Authority**: We assumed a top-down management style where Admins are the only ones authorized to add new team members for security reasons.
+## 🛠️ Maintenance & Development
+Every file in this project has been extensively documented with **Human-Friendly Comments**. These comments explain the "Why" behind the logic, making it easy for new developers to maintain or extend the system without external documentation.

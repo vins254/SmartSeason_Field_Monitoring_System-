@@ -1,4 +1,17 @@
+/**
+ * Standard Dropdown Select Component
+ * 
+ * Purpose:
+ * Provides a styled dropdown menu for selecting from a list of options.
+ * 
+ * How it works:
+ * 1. Wraps the native 'select' element with consistent Tailwind CSS styles.
+ * 2. Maps an 'options' array to individual 'option' elements automatically.
+ * 3. Supports all standard HTML select attributes via 'SelectHTMLAttributes'.
+ */
+
 import { SelectHTMLAttributes, forwardRef } from 'react'
+
 import { cn } from '@/lib/utils'
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {

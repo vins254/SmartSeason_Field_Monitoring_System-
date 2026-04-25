@@ -1,7 +1,9 @@
 {
   "name": "smartseason-server",
   "version": "1.0.0",
+  "description": "Backend API for the SmartSeason Field Monitoring System, built with Express, Prisma, and PostgreSQL.",
   "type": "module",
+
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",

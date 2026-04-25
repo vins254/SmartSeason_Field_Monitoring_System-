@@ -1,4 +1,19 @@
+/**
+ * Tailwind CSS Configuration
+ * 
+ * Purpose:
+ * Defines the design system for the application, including colors, fonts, 
+ * and responsive breakpoints.
+ * 
+ * How it works:
+ * 1. Specifies which files to scan for class names (content).
+ * 2. Extends the default theme with custom colors (primary, secondary, etc.) 
+ *    mapped to CSS variables.
+ * 3. Includes plugins like 'tailwindcss-animate' for UI transitions.
+ */
+
 /** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./index.html",

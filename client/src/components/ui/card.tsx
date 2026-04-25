@@ -1,4 +1,19 @@
+/**
+ * Card Component Suite
+ * 
+ * Purpose:
+ * A set of components used to create content containers with headers, 
+ * titles, descriptions, content areas, and footers.
+ * 
+ * How it works:
+ * 1. Provides a consistent visual style for containers using borders, 
+ *    shadows, and background colors.
+ * 2. Uses 'forwardRef' for all sub-components to support advanced React patterns.
+ * 3. Highly modular, allowing developers to pick and choose parts of the card.
+ */
+
 import { HTMLAttributes, forwardRef } from 'react'
+
 import { cn } from '@/lib/utils'
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(

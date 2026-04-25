@@ -1,4 +1,16 @@
+/**
+ * Status Badge Component
+ * 
+ * Purpose:
+ * Small visual indicators used for categories, status, or short labels.
+ * 
+ * How it works:
+ * Uses Tailwind CSS for a rounded, pill-like appearance with custom padding 
+ * and font styles.
+ */
+
 import * as React from "react"
+
 import { cn } from "@/lib/utils"
 
 const variantStyles = {

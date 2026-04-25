@@ -1,4 +1,19 @@
+/**
+ * Database Seeding Script
+ * 
+ * Purpose:
+ * Pre-populates the database with essential data (like the default Admin user) 
+ * and sample records for development and testing.
+ * 
+ * How it works:
+ * 1. Connects to the database using Prisma Client.
+ * 2. Uses 'upsert' to create an Admin and an Agent if they don't already exist.
+ * 3. Creates a set of sample fields and updates to simulate a real-world environment.
+ * 4. Run via 'npm run db:seed'.
+ */
+
 import { PrismaClient } from '@prisma/client'
+
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()

@@ -1,5 +1,18 @@
 {
+  /*
+    TypeScript Application Configuration
+    
+    Purpose:
+    Configures TypeScript specifically for the React frontend source code.
+
+    How it works:
+    1. Defines the React environment (jsx: react-jsx).
+    2. Sets up path aliases (@/*) to match Vite's configuration.
+    3. Enables strict linting rules to maintain high code quality.
+    4. Includes all files within the 'src' directory.
+  */
   "compilerOptions": {
+
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,

@@ -1,0 +1,20 @@
+{
+  /*
+    Vercel Deployment Configuration
+    
+    Purpose:
+    Configures the behavior of the application when hosted on Vercel.
+
+    How it works:
+    1. Implements a 'rewrite' rule that redirects all URL paths to index.html.
+    2. This allows React Router to handle navigation properly even when 
+       the user refreshes a sub-page.
+  */
+  "rewrites": [
+
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

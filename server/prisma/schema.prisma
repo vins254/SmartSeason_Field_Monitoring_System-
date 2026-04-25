@@ -1,4 +1,16 @@
+// SmartSeason Database Schema
+//
+// Purpose:
+// This file is the "source of truth" for our database structure. It defines 
+// our data models, their relationships, and the database provider.
+//
+// How it works:
+// 1. Prisma uses this file to generate a type-safe database client.
+// 2. It tracks relationships (e.g., a Field 'belongs to' a User).
+// 3. Changes here are synced to the physical database using 'prisma db push'.
+
 generator client {
+
   provider = "prisma-client-js"
 }
 

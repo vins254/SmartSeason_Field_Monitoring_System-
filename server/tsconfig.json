@@ -1,5 +1,18 @@
 {
+  /*
+    TypeScript Server Configuration
+    
+    Purpose:
+    Defines how the backend TypeScript code is compiled into JavaScript.
+
+    How it works:
+    1. Sets the target to ESNext for modern JavaScript features.
+    2. Configures module resolution for Node.js.
+    3. Enables strict type checking to catch errors early.
+    4. Specifies the output directory (dist) for the compiled code.
+  */
   "compilerOptions": {
+
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",

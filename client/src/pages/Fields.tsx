@@ -1,3 +1,14 @@
+/**
+ * SmartSeason Fields Directory
+ * 
+ * This page displays a comprehensive list of all agricultural monitoring targets.
+ * Features:
+ * 1. Global Search (by name or crop type).
+ * 2. Status & Stage filtering.
+ * 3. Responsive grid layout for field cards.
+ * 4. Conditional "Add Field" button (Admin only).
+ */
+
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Layout from '@/components/Layout'
@@ -23,6 +34,8 @@ export default function Fields() {
   const { user } = useAuth()
   const [fields, setFields] = useState<Field[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  
+  // Search & Filter state
   const [searchTerm, setSearchTerm] = useState('')
   const [stageFilter, setStageFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -31,6 +44,11 @@ export default function Fields() {
     loadFields()
   }, [])
 
+  /**
+   * Fetch field data from the API
+   * Note: The API automatically handles filtering based on the user's role 
+   * (Admins see all, Agents see assigned only).
+   */
   const loadFields = async () => {
     try {
       const apiBase = import.meta.env.VITE_API_BASE_URL || ''
@@ -49,6 +67,10 @@ export default function Fields() {
     }
   }
 
+  /**
+   * Client-side search and filter logic
+   * We combine all filters into a single computed array for efficiency.
+   */
   const filteredFields = fields.filter(field => {
     const matchesSearch = field.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       field.cropType.toLowerCase().includes(searchTerm.toLowerCase())
@@ -70,54 +92,60 @@ export default function Fields() {
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Header with Page Title and CTA */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-secondary">Fields</h1>
-            <p className="text-muted-foreground">Manage and monitor your agricultural fields</p>
+            <h1 className="text-2xl font-bold tracking-tight text-secondary">Monitoring Fields</h1>
+            <p className="text-muted-foreground">Detailed directory of active agricultural assets.</p>
           </div>
           {user?.role === 'admin' && (
             <Link to="/fields/new">
               <Button className="w-full sm:w-auto shadow-sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Field
+                Add New Field
               </Button>
             </Link>
           )}
         </div>
 
-        {/* Filters */}
-        <Card>
+        {/* Search & Filter Toolbar */}
+        <Card className="shadow-sm">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4">
+              {/* Search Bar */}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Search fields..."
+                    placeholder="Search by name or crop..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-9 pl-9 pr-3 rounded-md border border-input text-sm"
+                    className="w-full h-10 pl-10 pr-3 rounded-md border border-input text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   />
                 </div>
               </div>
+              
+              {/* Stage Filter */}
               <select
                 value={stageFilter}
                 onChange={(e) => setStageFilter(e.target.value)}
-                className="h-9 px-3 rounded-md border border-input text-sm"
+                className="h-10 px-3 rounded-md border border-input text-sm bg-background font-medium outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">All Stages</option>
+                <option value="">All Growth Stages</option>
                 <option value="Planted">Planted</option>
                 <option value="Growing">Growing</option>
                 <option value="Ready">Ready</option>
                 <option value="Harvested">Harvested</option>
               </select>
+
+              {/* Status Filter */}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-9 px-3 rounded-md border border-input text-sm"
+                className="h-10 px-3 rounded-md border border-input text-sm bg-background font-medium outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">All Status</option>
+                <option value="">All Health Status</option>
                 <option value="Active">Active</option>
                 <option value="At Risk">At Risk</option>
                 <option value="Completed">Completed</option>
@@ -126,47 +154,61 @@ export default function Fields() {
           </CardContent>
         </Card>
 
-        {/* Fields Grid */}
+        {/* Main Grid View */}
         {filteredFields.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Map className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No fields found</p>
-              {user?.role === 'admin' && (
+          <Card className="border-dashed">
+            <CardContent className="py-16 text-center">
+              <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Map className="h-8 w-8 text-slate-400" />
+              </div>
+              <p className="text-slate-500 font-medium">No fields match your current filters.</p>
+              {user?.role === 'admin' && searchTerm === '' && (
                 <Link to="/fields/new">
-                  <Button className="mt-4">
+                  <Button className="mt-4" variant="outline">
                     <Plus className="h-4 w-4 mr-2" />
-                    Create your first field
+                    Register a new field
                   </Button>
                 </Link>
               )}
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFields.map((field) => (
-              <Link key={field.id} to={`/fields/${field.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                  <CardContent className="pt-6">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
+              <Link key={field.id} to={`/fields/${field.id}`} className="group">
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer overflow-hidden border-slate-200">
+                  <CardContent className="p-0">
+                    <div className="p-6 space-y-4">
+                      {/* Card Header: Name & Health Status */}
+                      <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="font-semibold">{field.name}</h3>
-                          <p className="text-sm text-muted-foreground">{field.cropType}</p>
+                          <h3 className="font-bold text-secondary text-lg group-hover:text-primary transition-colors line-clamp-1">{field.name}</h3>
+                          <p className="text-sm font-medium text-muted-foreground">{field.cropType}</p>
                         </div>
-                        <Badge className={getStatusColor(field.status)}>{field.status}</Badge>
+                        <Badge className={cn(getStatusColor(field.status), "shadow-none border")}>
+                          {field.status}
+                        </Badge>
                       </div>
+
+                      {/* Card Body: Stage & Timeline */}
                       <div className="flex items-center justify-between text-sm">
-                        <Badge className={getStageColor(field.stage)}>{field.stage}</Badge>
-                        <span className="text-muted-foreground">
-                          Planted: {formatDate(field.plantingDate)}
+                        <Badge className={cn(getStageColor(field.stage), "shadow-none border")}>
+                          {field.stage}
+                        </Badge>
+                        <span className="text-xs text-slate-500 font-medium">
+                          Since {formatDate(field.plantingDate)}
                         </span>
                       </div>
-                      {field.agentName && (
-                        <p className="text-xs text-muted-foreground">
-                          Assigned to: {field.agentName}
+                      
+                      {/* Card Footer: Assignment Info */}
+                      <div className="pt-4 border-t border-slate-100">
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                          Assigned Professional
                         </p>
-                      )}
+                        <p className="text-sm font-semibold text-secondary mt-0.5">
+                          {field.agentName || "Unassigned"}
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

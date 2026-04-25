@@ -1,4 +1,18 @@
+/**
+ * Reusable Button Component
+ * 
+ * Purpose:
+ * Provides a standardized button with multiple visual variants (primary, 
+ * destructive, ghost, etc.) and sizes.
+ * 
+ * How it works:
+ * 1. Defines style variants and sizes using Tailwind CSS classes.
+ * 2. Uses 'forwardRef' to ensure the component behaves like a native HTML button.
+ * 3. Uses the 'cn' utility to merge variant styles with any custom classes.
+ */
+
 import { ButtonHTMLAttributes, forwardRef } from 'react'
+
 import { cn } from '@/lib/utils'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

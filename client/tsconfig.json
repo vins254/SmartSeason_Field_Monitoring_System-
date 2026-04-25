@@ -1,5 +1,16 @@
 {
+  /*
+    TypeScript Root Configuration
+    
+    Purpose:
+    The base configuration for TypeScript in the client project.
+
+    How it works:
+    It references the more specific configurations (tsconfig.app.json and tsconfig.node.json) 
+    to handle different parts of the build process.
+  */
   "files": [],
+
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

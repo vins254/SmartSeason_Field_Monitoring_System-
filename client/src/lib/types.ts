@@ -1,4 +1,18 @@
+/**
+ * Global TypeScript Interfaces
+ * 
+ * Purpose:
+ * Defines the "shape" of the data we use in the application. This ensures 
+ * that the frontend and backend are always in sync regarding data structures.
+ * 
+ * How it works:
+ * 1. Exports interfaces like 'User', 'Field', and 'FieldUpdate'.
+ * 2. Used by components and API services to provide auto-completion and 
+ *    catch data-related errors during development.
+ */
+
 export interface User {
+
   id: number
   email: string
   name: string

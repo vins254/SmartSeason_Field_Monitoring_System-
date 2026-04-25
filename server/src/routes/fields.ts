@@ -1,3 +1,12 @@
+/**
+ * Fields Management Routes
+ * 
+ * This router handles the full lifecycle of agricultural fields.
+ * It implements Role-Based Access Control (RBAC):
+ * - Admins: Full CRUD access to all fields.
+ * - Agents: Can only view and update fields assigned to them.
+ */
+
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
@@ -5,24 +14,25 @@ import { AuthRequest } from '../middleware/auth'
 const router = Router()
 
 /**
- * Utility to reliably extract the field ID from request parameters.
- * Sometimes Express gives us an array or a string, so we ensure it's a clean integer.
+ * Utility: Extract a clean Integer ID from request params.
+ * Express params can sometimes be unpredictable, so this ensures we have 
+ * a valid database ID before performing queries.
  */
 function getFieldId(id: string | string[]): number {
   return parseInt(Array.isArray(id) ? id[0] : id)
 }
 
 /**
- * Main GET endpoint for fields.
- * Here's the clever part: we check the user's role. 
- * If they're an admin, they get everything. 
- * If they're an agent, the query automatically filters to only show what's assigned to them.
+ * GET /api/fields
+ * Retrieve a list of fields based on user permissions.
  */
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id
     const userRole = req.user?.role?.toLowerCase()
 
+    // Smart Filtering: 
+    // Admins see everything. Agents only see fields where they are the assigned 'agentId'.
     const where = userRole === 'admin' 
       ? {} 
       : { agentId: userId }
@@ -38,8 +48,9 @@ router.get('/', async (req: AuthRequest, res) => {
     })
 
     /**
-     * Before sending data to the frontend, we calculate the "Health Status" on the fly.
-     * We also format the DB enums (like HARVEST_READY) into human-readable text (Harvest Ready).
+     * Data Transformation Layer
+     * Before sending data to the frontend, we calculate the "Health Status" 
+     * and format database enums into human-friendly strings.
      */
     const fieldsWithStatus = fields.map(field => {
       const statusValue = computeFieldStatus(field)
@@ -53,12 +64,15 @@ router.get('/', async (req: AuthRequest, res) => {
 
     res.json(fieldsWithStatus)
   } catch (error) {
-    console.error('Get fields error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('FETCH FIELDS ERROR:', error)
+    res.status(500).json({ message: 'Failed to retrieve fields' })
   }
 })
 
-// Get single field
+/**
+ * GET /api/fields/:id
+ * Fetch details for a specific field, including its assigned agent.
+ */
 router.get('/:id', async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
@@ -79,7 +93,7 @@ router.get('/:id', async (req: AuthRequest, res) => {
       return res.status(404).json({ message: 'Field not found' })
     }
 
-    // Check access
+    // Security Check: Agents can't peek at fields they aren't assigned to.
     if (userRole !== 'admin' && field.agentId !== userId) {
       return res.status(403).json({ message: 'Access denied' })
     }
@@ -93,22 +107,26 @@ router.get('/:id', async (req: AuthRequest, res) => {
       agentName: field.agent?.name
     })
   } catch (error) {
-    console.error('Get field error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('GET FIELD ERROR:', error)
+    res.status(500).json({ message: 'Error retrieving field details' })
   }
 })
 
-// Create field (admin only)
+/**
+ * POST /api/fields
+ * Create a new monitoring target (Admin Only).
+ */
 router.post('/', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' })
+      return res.status(403).json({ message: 'Only administrators can create fields' })
     }
 
     const { name, cropType, plantingDate, stage, agentId } = req.body
 
+    // Validation: Ensure we have the bare minimum to start tracking
     if (!name || !cropType || !plantingDate || !agentId) {
-      return res.status(400).json({ message: 'Name, crop type, planting date, and agent assignment are required' })
+      return res.status(400).json({ message: 'Please provide name, crop type, planting date, and an assigned agent' })
     }
 
     const field = await prisma.field.create({
@@ -135,16 +153,19 @@ router.post('/', async (req: AuthRequest, res) => {
       agentName: field.agent?.name
     })
   } catch (error) {
-    console.error('Create field error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('CREATE FIELD ERROR:', error)
+    res.status(500).json({ message: 'Failed to create new field' })
   }
 })
 
-// Update field (admin only)
+/**
+ * PUT /api/fields/:id
+ * Update field metadata (Admin Only).
+ */
 router.put('/:id', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' })
+      return res.status(403).json({ message: 'Admin access required for modifications' })
     }
 
     const { id } = req.params
@@ -184,16 +205,19 @@ router.put('/:id', async (req: AuthRequest, res) => {
       agentName: field.agent?.name
     })
   } catch (error) {
-    console.error('Update field error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('UPDATE FIELD ERROR:', error)
+    res.status(500).json({ message: 'Failed to update field' })
   }
 })
 
-// Delete field (admin only)
+/**
+ * DELETE /api/fields/:id
+ * Permanently remove a field (Admin Only).
+ */
 router.delete('/:id', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' })
+      return res.status(403).json({ message: 'Admin access required for deletion' })
     }
 
     const { id } = req.params
@@ -211,14 +235,17 @@ router.delete('/:id', async (req: AuthRequest, res) => {
       where: { id: fieldId }
     })
 
-    res.json({ message: 'Field deleted successfully' })
+    res.json({ message: 'Field successfully archived and removed from tracking' })
   } catch (error) {
-    console.error('Delete field error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('DELETE FIELD ERROR:', error)
+    res.status(500).json({ message: 'Failed to delete field' })
   }
 })
 
-// Get field updates
+/**
+ * GET /api/fields/:id/updates
+ * Get the full history of monitoring reports for a field.
+ */
 router.get('/:id/updates', async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
@@ -234,9 +261,9 @@ router.get('/:id/updates', async (req: AuthRequest, res) => {
       return res.status(404).json({ message: 'Field not found' })
     }
 
-    // Check access
+    // Access Check
     if (userRole !== 'admin' && field.agentId !== userId) {
-      return res.status(403).json({ message: 'Access denied' })
+      return res.status(403).json({ message: 'Access denied to history' })
     }
 
     const updates = await prisma.fieldUpdate.findMany({
@@ -255,12 +282,15 @@ router.get('/:id/updates', async (req: AuthRequest, res) => {
       userName: u.user.name
     })))
   } catch (error) {
-    console.error('Get field updates error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('HISTORY FETCH ERROR:', error)
+    res.status(500).json({ message: 'Error retrieving field update history' })
   }
 })
 
-// Create field update (agent can update their assigned fields)
+/**
+ * POST /api/fields/:id/updates
+ * Submit a new monitoring report (The core task for Agents).
+ */
 router.post('/:id/updates', async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
@@ -276,16 +306,16 @@ router.post('/:id/updates', async (req: AuthRequest, res) => {
       return res.status(404).json({ message: 'Field not found' })
     }
 
-    // Check access - admin can update any field, agent can only update their assigned fields
+    // Permission: Only the assigned agent or an admin can file an update report.
     if (req.user?.role?.toLowerCase() !== 'admin' && field.agentId !== userId) {
-      return res.status(403).json({ message: 'Access denied' })
+      return res.status(403).json({ message: 'You are not assigned to this field' })
     }
 
     if (!stage) {
-      return res.status(400).json({ message: 'Stage is required' })
+      return res.status(400).json({ message: 'Please select the current growth stage' })
     }
 
-    // Create the update
+    // 1. Create the update record (Audit Trail)
     const update = await prisma.fieldUpdate.create({
       data: {
         fieldId: fieldId,
@@ -300,7 +330,7 @@ router.post('/:id/updates', async (req: AuthRequest, res) => {
       }
     })
 
-    // Update the field stage
+    // 2. Sync the current field stage with the latest report
     await prisma.field.update({
       where: { id: fieldId },
       data: {
@@ -314,40 +344,43 @@ router.post('/:id/updates', async (req: AuthRequest, res) => {
       userName: update.user.name
     })
   } catch (error) {
-    console.error('Create field update error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('UPDATE SUBMISSION ERROR:', error)
+    res.status(500).json({ message: 'Failed to record field update' })
   }
 })
 
 /**
- * This is our automated "Field Health" checker.
- * Instead of storing the status (Active/At Risk) in the database, we calculate it 
- * whenever the data is fetched. This prevents the data from becoming stale.
+ * --- AUTOMATED FIELD HEALTH LOGIC ---
+ * 
+ * We use this to calculate the 'Status' badge you see in the UI.
+ * Rules:
+ * 1. If Stage = HARVESTED -> Status is 'Completed'.
+ * 2. If no update for > 14 days -> Status is 'At Risk' (Alert the Admin!).
+ * 3. Otherwise -> Status is 'Active'.
  */
 function computeFieldStatus(field: { stage: string; updatedAt: Date }) {
   const now = new Date()
   const daysSinceUpdate = Math.floor((now.getTime() - new Date(field.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
 
-  // Once a field is harvested, we consider the cycle "Completed"
   if (field.stage === 'HARVESTED') {
     return 'COMPLETED'
   }
 
-  // Our policy is that a field needs an update at least every 14 days.
-  // If an agent hasn't checked in for 2 weeks, we flag it as "At Risk" so the admin can follow up.
+  // Critical Assumption: Monitoring happens bi-weekly at minimum.
   if (daysSinceUpdate > 14) {
     return 'AT_RISK'
   }
 
-
-  // Otherwise, active
   return 'ACTIVE'
 }
 
-// Format enum value to Title Case (e.g. READY -> Ready, AT_RISK -> At Risk)
+/**
+ * Utility: Format Enum Strings for humans.
+ * e.g. HARVEST_READY -> Harvest Ready
+ */
 function formatEnum(val: string) {
   if (!val) return val
   return val.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
 }
 
-export default router
+export default router

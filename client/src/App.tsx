@@ -1,3 +1,12 @@
+/**
+ * SmartSeason Frontend Main Application
+ * 
+ * This is the "brain" of our frontend. It manages:
+ * 1. Global Authentication State (Are you logged in?)
+ * 2. Route Protection (Can you see this page?)
+ * 3. Navigation & Routing (Where are you going?)
+ */
+
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext } from 'react'
 import Login from './pages/Login'
@@ -8,7 +17,8 @@ import FieldForm from './pages/FieldForm'
 import Users from './pages/Users'
 import UserForm from './pages/UserForm'
 
-// Auth context
+// --- AUTHENTICATION CONTEXT ---
+
 interface User {
   id: number
   email: string
@@ -24,8 +34,8 @@ interface AuthContextType {
 }
 
 /**
- * AuthContext is the heart of our application's security.
- * We use it to share the logged-in user's data across every single component.
+ * AuthContext allows us to share user data across every component 
+ * without having to pass props down manually through 10 levels of components.
  */
 const AuthContext = createContext<AuthContextType | null>(null)
 
@@ -35,15 +45,18 @@ export const useAuth = () => {
   return context
 }
 
+// --- PROTECTED ROUTE WRAPPER ---
+
 /**
- * The ProtectedRoute wrapper is our gatekeeper.
- * If you aren't logged in, it'll bounce you back to the login page.
- * It also handles role-based access, making sure Agents can't sneak into Admin pages.
+ * The ProtectedRoute component is our "security guard".
+ * It checks if a user is logged in before allowing them to see a page.
+ * If they aren't logged in, it redirects them to the Login page.
  */
 function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode; requiredRole?: 'admin' | 'agent' }) {
   const { user, isLoading } = useAuth()
   
   if (isLoading) {
+    // Show a loading spinner while we check the local storage for an existing session
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -52,10 +65,12 @@ function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode;
   }
   
   if (!user) {
+    // No user found? Send them to the login gate.
     return <Navigate to="/login" replace />
   }
   
-  // Rule: Admins can see everything, but certain pages are strictly restricted to Admins.
+  // Rule: Only Admins can access certain management pages.
+  // Agents get bounced back to the dashboard if they try to sneak in.
   if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
     return <Navigate to="/dashboard" replace />
   }
@@ -63,9 +78,13 @@ function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode;
   return <>{children}</>
 }
 
+// --- AUTH PROVIDER ---
+
 /**
- * AuthProvider handles the dirty work of logging in, logging out, 
- * and remembering who you are even if you refresh the page.
+ * AuthProvider handles the heavy lifting of:
+ * - Persisting login across refreshes (using localStorage)
+ * - Communicating with the Login API
+ * - Managing the global 'user' state
  */
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -73,11 +92,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // When the app first loads, we check if there's a user saved in local storage.
+    // This is what makes "Remember Me" functionality work.
     const stored = localStorage.getItem('smartseason_user')
     if (stored) {
       try {
         setUser(JSON.parse(stored))
       } catch {
+        // If the data is corrupted, just clear it.
         localStorage.removeItem('smartseason_user')
       }
     }
@@ -98,6 +119,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const data = await res.json()
       const userData = { ...data.user }
+      
+      // Save user info and token so the user stays logged in if they refresh.
       setUser(userData)
       localStorage.setItem('smartseason_user', JSON.stringify(userData))
       localStorage.setItem('smartseason_token', data.token)
@@ -120,58 +143,74 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+// --- MAIN APPLICATION ---
+
+/**
+ * The App component defines our URL structure.
+ * We use 'react-router-dom' to map paths (like /fields) to specific pages.
+ */
 function App() {
   return (
     <AuthProvider>
       <Routes>
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+
+        {/* Protected Routes (Require Login) */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
         } />
+        
         <Route path="/fields" element={
           <ProtectedRoute>
             <Fields />
           </ProtectedRoute>
         } />
+        
         <Route path="/fields/new" element={
           <ProtectedRoute requiredRole="admin">
             <FieldForm />
           </ProtectedRoute>
         } />
+        
         <Route path="/fields/:id" element={
           <ProtectedRoute>
             <FieldDetail />
           </ProtectedRoute>
         } />
+        
         <Route path="/fields/:id/edit" element={
           <ProtectedRoute requiredRole="admin">
             <FieldForm />
           </ProtectedRoute>
         } />
         
-        {/* User Management */}
+        {/* User Management (Admin Only) */}
         <Route path="/users" element={
           <ProtectedRoute requiredRole="admin">
             <Users />
           </ProtectedRoute>
         } />
+        
         <Route path="/users/new" element={
           <ProtectedRoute requiredRole="admin">
             <UserForm />
           </ProtectedRoute>
         } />
+        
         <Route path="/users/:id/edit" element={
           <ProtectedRoute requiredRole="admin">
             <UserForm />
           </ProtectedRoute>
         } />
         
+        {/* The "Catch-all" Redirect: If the URL doesn't match anything, go to Dashboard */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>
   )
 }
 
-export default App
+export default App

@@ -2,7 +2,9 @@
   "name": "smartseason-client",
   "private": true,
   "version": "1.0.0",
+  "description": "Frontend application for the SmartSeason Field Monitoring System, built with React, Vite, and Tailwind CSS.",
   "type": "module",
+
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
