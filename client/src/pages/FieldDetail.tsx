@@ -50,8 +50,9 @@ export default function FieldDetail() {
 
   const loadField = async (fieldId: number) => {
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`/api/fields/${fieldId}`, {
+      const res = await fetch(`${apiBase}/api/fields/${fieldId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -67,8 +68,9 @@ export default function FieldDetail() {
 
   const loadUpdates = async (fieldId: number) => {
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`/api/fields/${fieldId}/updates`, {
+      const res = await fetch(`${apiBase}/api/fields/${fieldId}/updates`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -86,8 +88,9 @@ export default function FieldDetail() {
 
     setIsUpdating(true)
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`/api/fields/${id}/updates`, {
+      const res = await fetch(`${apiBase}/api/fields/${id}/updates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,8 +116,9 @@ export default function FieldDetail() {
     if (!id || !confirm('Are you sure you want to delete this field?')) return
 
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`/api/fields/${id}`, {
+      const res = await fetch(`${apiBase}/api/fields/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
