@@ -24,6 +24,10 @@ app.use('/api/fields', authenticateToken, fieldsRouter)
 app.use('/api/users', authenticateToken, usersRouter)
 
 // Health check
+app.get('/', (req, res) => {
+  res.send('SmartSeason API is running. Direct UI access is not available here.')
+})
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
