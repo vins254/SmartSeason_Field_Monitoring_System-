@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import Fields from './pages/Fields' 
 import FieldDetail from './pages/FieldDetail'
 import FieldForm from './pages/FieldForm'
+import Users from './pages/Users'
+import UserForm from './pages/UserForm'
 
 // Auth context
 interface User {
@@ -135,6 +137,19 @@ function App() {
             <FieldForm />
           </ProtectedRoute>
         } />
+        
+        {/* User Management */}
+        <Route path="/users" element={
+          <ProtectedRoute requiredRole="admin">
+            <Users />
+          </ProtectedRoute>
+        } />
+        <Route path="/users/new" element={
+          <ProtectedRoute requiredRole="admin">
+            <UserForm />
+          </ProtectedRoute>
+        } />
+        
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>

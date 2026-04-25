@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/App'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Map, LogOut, Sprout, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Map, LogOut, Sprout, Menu, X, Users as UsersIcon } from 'lucide-react'
 
 interface LayoutProps {
   children: ReactNode
@@ -12,6 +12,7 @@ interface LayoutProps {
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/fields', label: 'Fields', icon: Map },
+  { path: '/users', label: 'Users', icon: UsersIcon, adminOnly: true },
 ]
 
 export default function Layout({ children }: LayoutProps) {
@@ -38,7 +39,7 @@ export default function Layout({ children }: LayoutProps) {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              {navItems.map((item) => {
+              {navItems.filter(item => !item.adminOnly || user?.role?.toLowerCase() === 'admin').map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname.startsWith(item.path)
                 return (
@@ -92,7 +93,7 @@ export default function Layout({ children }: LayoutProps) {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t animate-in slide-in-from-top-4 duration-200">
               <nav className="flex flex-col gap-2">
-                {navItems.map((item) => {
+                {navItems.filter(item => !item.adminOnly || user?.role?.toLowerCase() === 'admin').map((item) => {
                   const Icon = item.icon
                   const isActive = location.pathname.startsWith(item.path)
                   return (
