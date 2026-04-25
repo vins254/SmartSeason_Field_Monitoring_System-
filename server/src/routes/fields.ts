@@ -13,7 +13,7 @@ function getFieldId(id: string | string[]): number {
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id
-    const userRole = req.user?.role
+    const userRole = req.user?.role?.toLowerCase()
 
     const where = userRole === 'admin' 
       ? {} 
@@ -53,7 +53,7 @@ router.get('/:id', async (req: AuthRequest, res) => {
     const { id } = req.params
     const fieldId = getFieldId(id)
     const userId = req.user?.id
-    const userRole = req.user?.role
+    const userRole = req.user?.role?.toLowerCase()
 
     const field = await prisma.field.findUnique({
       where: { id: fieldId },
@@ -90,7 +90,7 @@ router.get('/:id', async (req: AuthRequest, res) => {
 // Create field (admin only)
 router.post('/', async (req: AuthRequest, res) => {
   try {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
@@ -132,7 +132,7 @@ router.post('/', async (req: AuthRequest, res) => {
 // Update field (admin only)
 router.put('/:id', async (req: AuthRequest, res) => {
   try {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
@@ -181,7 +181,7 @@ router.put('/:id', async (req: AuthRequest, res) => {
 // Delete field (admin only)
 router.delete('/:id', async (req: AuthRequest, res) => {
   try {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
@@ -213,7 +213,7 @@ router.get('/:id/updates', async (req: AuthRequest, res) => {
     const { id } = req.params
     const fieldId = getFieldId(id)
     const userId = req.user?.id
-    const userRole = req.user?.role
+    const userRole = req.user?.role?.toLowerCase()
 
     const field = await prisma.field.findUnique({
       where: { id: fieldId }
@@ -266,7 +266,7 @@ router.post('/:id/updates', async (req: AuthRequest, res) => {
     }
 
     // Check access - admin can update any field, agent can only update their assigned fields
-    if (req.user?.role !== 'admin' && field.agentId !== userId) {
+    if (req.user?.role?.toLowerCase() !== 'admin' && field.agentId !== userId) {
       return res.status(403).json({ message: 'Access denied' })
     }
 

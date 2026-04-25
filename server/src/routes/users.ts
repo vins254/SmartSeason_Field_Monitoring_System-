@@ -7,7 +7,7 @@ const router = Router()
 // Get all users (admin only)
 router.get('/', async (req: AuthRequest, res) => {
   try {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
@@ -52,7 +52,7 @@ router.get('/', async (req: AuthRequest, res) => {
 // Get agents for field assignment
 router.get('/agents', async (req: AuthRequest, res) => {
   try {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' })
     }
 

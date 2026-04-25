@@ -29,8 +29,9 @@ export default function Dashboard() {
 
   const loadFields = async () => {
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch('/api/fields', {
+      const res = await fetch(`${apiBase}/api/fields`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {

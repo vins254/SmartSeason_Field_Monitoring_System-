@@ -39,8 +39,9 @@ export default function FieldForm() {
 
   const loadAgents = async () => {
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch('/api/users?role=agent', {
+      const res = await fetch(`${apiBase}/api/users?role=agent`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -55,8 +56,9 @@ export default function FieldForm() {
   const loadField = async (fieldId: number) => {
     setIsLoading(true)
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const res = await fetch(`/api/fields/${fieldId}`, {
+      const res = await fetch(`${apiBase}/api/fields/${fieldId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -82,8 +84,9 @@ export default function FieldForm() {
     setIsSubmitting(true)
 
     try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
-      const url = isEditing ? `/api/fields/${id}` : '/api/fields'
+      const url = id ? `${apiBase}/api/fields/${id}` : `${apiBase}/api/fields`
       const method = isEditing ? 'PUT' : 'POST'
 
       const res = await fetch(url, {
