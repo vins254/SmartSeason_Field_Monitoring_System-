@@ -75,8 +75,8 @@ export default function Dashboard() {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back, {user?.name}</h1>
-          <p className="text-muted-foreground">Here's what's happening with your fields.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-secondary">Welcome back, {user?.name}</h1>
+          <p className="text-muted-foreground font-medium">Seasonal overview of field activities and crop progress.</p>
         </div>
 
         {/* Stats Cards */}
@@ -110,8 +110,8 @@ export default function Dashboard() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.atRisk}</p>
