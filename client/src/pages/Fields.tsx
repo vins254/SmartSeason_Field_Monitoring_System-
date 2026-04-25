@@ -16,7 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/App'
-import { formatDate, getStatusColor, getStageColor } from '@/lib/utils'
+import { cn, formatDate, getStatusColor, getStageColor } from '@/lib/utils'
 import { Plus, Map, Search } from 'lucide-react'
 
 interface Field {

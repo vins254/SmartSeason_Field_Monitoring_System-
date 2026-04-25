@@ -18,7 +18,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/App'
-import { formatDate, getStatusColor, getStageColor } from '@/lib/utils'
+import { cn, formatDate, getStatusColor, getStageColor } from '@/lib/utils'
 import { ArrowLeft, Edit, Trash2, Plus } from 'lucide-react'
 
 interface Field {
