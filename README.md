@@ -89,5 +89,3 @@ For a deep dive into the architecture, tech stack rationale, and implementation 
 - **Database (Supabase)**: Use the Transaction Pooler (port 6543) for the live app for best performance.
 
 ---
-
-MIT License © 2026 SmartSeason Team
