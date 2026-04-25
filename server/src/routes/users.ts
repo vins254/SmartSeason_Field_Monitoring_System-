@@ -5,6 +5,12 @@ import { AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
+// Helper to safely parse IDs from request params
+function getUserId(id: any): number {
+  const val = Array.isArray(id) ? id[0] : id
+  return parseInt(val)
+}
+
 // Get all users (admin only)
 router.get('/', async (req: AuthRequest, res) => {
   try {
@@ -85,8 +91,8 @@ router.get('/:id', async (req: AuthRequest, res) => {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
-    const { id } = req.params
-    const userId = parseInt(id)
+    const id = req.params.id as string
+    const userId = getUserId(id)
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -120,8 +126,8 @@ router.put('/:id', async (req: AuthRequest, res) => {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
-    const { id } = req.params
-    const userId = parseInt(id)
+    const id = req.params.id as string
+    const userId = getUserId(id)
     const { email, password, name, role } = req.body
 
     const existingUser = await prisma.user.findUnique({ where: { id: userId } })
@@ -166,8 +172,8 @@ router.delete('/:id', async (req: AuthRequest, res) => {
       return res.status(403).json({ message: 'Admin access required' })
     }
 
-    const { id } = req.params
-    const userId = parseInt(id)
+    const id = req.params.id as string
+    const userId = getUserId(id)
 
     // Cannot delete yourself
     if (userId === req.user?.id) {
