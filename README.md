@@ -1,95 +1,70 @@
 # SmartSeason Field Monitoring System 🌾
 
-A premium, full-stack agricultural management platform designed for seamless tracking of crop progress, field activities, and harvest cycles. Optimized for both desktop and mobile operations.
+A professional, full-stack agricultural management platform built for farm coordinators and field agents. It provides real-time oversight of crop progress, agent accountability, and operational efficiency.
 
 ---
 
-## ✨ Features
+## 🚀 Getting Started (Fast-Track)
 
-### 🏢 Administration & Oversight
-- **Global Dashboard**: Real-time stats across all monitored fields including health status and stage distribution.
-- **Smart Field Creation**: Standardized field setup with mandatory Field Agent assignment for accountability.
-- **Asset Management**: Full CRUD capabilities for field data and agent organization.
+### 1. Database (Supabase)
+- Create a project and get your **Direct Connection URI**.
+- Ensure any special characters in the password are **Percent-Encoded**.
 
-### 🚜 Field Operations
-- **Agent Dashboard**: Focused view on assigned fields with status indicators and update prompts.
-- **Progress Tracking**: One-touch stage updates (Planted → Growing → Ready → Harvested).
-- **Observation Logs**: Add detailed notes and history logs for each field transition.
-
-### 📱 Premium Design & UX
-- **Agriculture-Friendly Palette**: Professional design using Green (Success), Amber (Risk), and Slate (Information).
-- **Fully Responsive**: Optimized for rugged field use via smartphone or tablet with adaptive mobile menus.
-- **High-Performance Stats**: Visual badges and clear typography (Inter) for instant data readability.
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 18 (Vite) + Tailwind CSS + Lucide Icons
-- **Backend**: Node.js + Express.js
-- **Database**: PostgreSQL with Supabase
-- **ORM**: Prisma (Type-safe access)
-- **Security**: JWT-based Authentication with local persistence
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- PostgreSQL (Local or Supabase)
-
-### 1. Database Setup
-Create your database and update `server/.env`:
-```bash
-# Example DATABASE_URL
-DATABASE_URL="postgresql://user:password@localhost:5432/smartseason?schema=public"
-```
-
-### 2. Backend Initialization
+### 2. Backend (Server)
 ```bash
 cd server
 npm install
 npx prisma generate
-npx prisma db push
-npm run db:seed    # Populates demo admin and agent
-npm run dev
+npx prisma db push   # Syncs your tables to Supabase
+npm run db:seed      # Creates admin@smartseason.com
+npm run dev          # Runs on http://localhost:3000
 ```
 
-### 3. Frontend Initialization
+### 3. Frontend (Client)
 ```bash
 cd client
 npm install
-npm run dev
+npm run dev          # Runs on http://localhost:5173
 ```
 
 ---
 
-## ☁️ Deployment
+## 🎨 Design Decisions
 
-The system is optimized for cloud deployment:
-- **Frontend**: Deploy to **Vercel** (Point to your Backend URL via `VITE_API_BASE_URL`).
-- **Backend**: Deploy to **Render** (Root: `server`, Build: `npm install && npm run build`).
-- **Database**: Use **Supabase** for a managed PostgreSQL instance.
+### The "Health" Algorithm
+We made a conscious choice to calculate field status (Active vs. At Risk) dynamically on every request. We assume that if a field hasn't had a status update in **14 days**, it requires immediate attention. This prevents "data rot" where a field stays "Active" in the database long after it has been abandoned.
 
-*Detailed deployment instructions are available in the project documentation.*
+### Mobile-First Navigation
+The system is built with **Tailwind CSS** and a custom responsive Layout. We assumed that Field Agents are using smartphones while standing in the dirt, so we prioritized big buttons, a clean mobile hamburger menu, and high-contrast badges.
 
----
-
-## 🔐 Credentials (Demo)
-
-| Role | Email | Password |
-|------|-------|----------|
-| **Admin** | `admin@smartseason.com` | `admin123` |
-| **Agent** | `agent@smartseason.com` | `agent123` |
+### Color Meaning
+We use a curated palette where colors have specific operational meanings:
+- **Green**: Healthy/Active
+- **Amber**: Needs Attention (At Risk)
+- **Slate**: Neutrals (Completed/Neutral)
+- **Red**: Danger/Error
 
 ---
 
-## 📐 Design Philosophy
+## 🧠 Core Assumptions
 
-1. **Aesthetics Over Minimalism**: We use a curated color palette to provide meaning (Green for Healthy, Yellow for At Risk, Gray for Completed).
-2. **Data Integrity**: Enforced agent-to-field relationships ensure no field is left monitoring-less.
-3. **Mobile First**: Navigation and management tools are designed to work perfectly on small touchscreens for agents in the field.
+1. **Connectivity**: We assume that agents have access to mobile data or Wi-Fi when making updates.
+2. **Standard Growth Cycles**: The system is pre-configured for a 4-stage lifecycle (Planted, Growing, Ready, Harvested).
+3. **Restricted Enrollment**: To keep the system secure, we assumed that only **Administrators** should be able to create new user accounts. There is no "Public Sign-Up" page.
+
+---
+
+## 📄 Documentation
+
+For a deep dive into the architecture, tech stack rationale, and implementation details, please see our [**Advanced Documentation (DOCUMENTATION.md)**](./DOCUMENTATION.md).
+
+---
+
+## ☁️ Deployment Essentials
+
+- **Backend (Render)**: Set `DATABASE_URL` and `JWT_SECRET`.
+- **Frontend (Vercel)**: Set `VITE_API_BASE_URL` to your Render API URL.
+- **Database (Supabase)**: Use the Transaction Pooler (port 6543) for the live app for best performance.
 
 ---
 

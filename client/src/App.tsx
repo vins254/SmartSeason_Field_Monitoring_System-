@@ -23,6 +23,10 @@ interface AuthContextType {
   isLoading: boolean
 }
 
+/**
+ * AuthContext is the heart of our application's security.
+ * We use it to share the logged-in user's data across every single component.
+ */
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const useAuth = () => {
@@ -31,7 +35,11 @@ export const useAuth = () => {
   return context
 }
 
-// Protected Route Component
+/**
+ * The ProtectedRoute wrapper is our gatekeeper.
+ * If you aren't logged in, it'll bounce you back to the login page.
+ * It also handles role-based access, making sure Agents can't sneak into Admin pages.
+ */
 function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode; requiredRole?: 'admin' | 'agent' }) {
   const { user, isLoading } = useAuth()
   
@@ -47,6 +55,7 @@ function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode;
     return <Navigate to="/login" replace />
   }
   
+  // Rule: Admins can see everything, but certain pages are strictly restricted to Admins.
   if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
     return <Navigate to="/dashboard" replace />
   }
@@ -54,13 +63,16 @@ function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode;
   return <>{children}</>
 }
 
-// Auth Provider
+/**
+ * AuthProvider handles the dirty work of logging in, logging out, 
+ * and remembering who you are even if you refresh the page.
+ */
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored auth
+    // When the app first loads, we check if there's a user saved in local storage.
     const stored = localStorage.getItem('smartseason_user')
     if (stored) {
       try {
@@ -71,6 +83,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoading(false)
   }, [])
+
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {

@@ -4,12 +4,20 @@ import { AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
-// Helper to get field ID from params
+/**
+ * Utility to reliably extract the field ID from request parameters.
+ * Sometimes Express gives us an array or a string, so we ensure it's a clean integer.
+ */
 function getFieldId(id: string | string[]): number {
   return parseInt(Array.isArray(id) ? id[0] : id)
 }
 
-// Get all fields (admin sees all, agent sees only assigned)
+/**
+ * Main GET endpoint for fields.
+ * Here's the clever part: we check the user's role. 
+ * If they're an admin, they get everything. 
+ * If they're an agent, the query automatically filters to only show what's assigned to them.
+ */
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id
@@ -29,7 +37,10 @@ router.get('/', async (req: AuthRequest, res) => {
       orderBy: { updatedAt: 'desc' }
     })
 
-    // Compute status and format stage for each field
+    /**
+     * Before sending data to the frontend, we calculate the "Health Status" on the fly.
+     * We also format the DB enums (like HARVEST_READY) into human-readable text (Harvest Ready).
+     */
     const fieldsWithStatus = fields.map(field => {
       const statusValue = computeFieldStatus(field)
       return {
@@ -308,20 +319,26 @@ router.post('/:id/updates', async (req: AuthRequest, res) => {
   }
 })
 
-// Compute field status based on business logic
+/**
+ * This is our automated "Field Health" checker.
+ * Instead of storing the status (Active/At Risk) in the database, we calculate it 
+ * whenever the data is fetched. This prevents the data from becoming stale.
+ */
 function computeFieldStatus(field: { stage: string; updatedAt: Date }) {
   const now = new Date()
   const daysSinceUpdate = Math.floor((now.getTime() - new Date(field.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
 
-  // If harvested, mark as completed
+  // Once a field is harvested, we consider the cycle "Completed"
   if (field.stage === 'HARVESTED') {
     return 'COMPLETED'
   }
 
-  // If not updated for more than 14 days, mark as at risk
+  // Our policy is that a field needs an update at least every 14 days.
+  // If an agent hasn't checked in for 2 weeks, we flag it as "At Risk" so the admin can follow up.
   if (daysSinceUpdate > 14) {
     return 'AT_RISK'
   }
+
 
   // Otherwise, active
   return 'ACTIVE'
