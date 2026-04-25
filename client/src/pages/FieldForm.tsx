@@ -189,13 +189,14 @@ export default function FieldForm() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Assign to Agent (Optional)</label>
+                <label className="text-sm font-medium">Assign Agent</label>
                 <select
                   value={formData.agentId}
                   onChange={(e) => setFormData({ ...formData, agentId: e.target.value })}
+                  required
                   className="w-full h-9 px-3 rounded-md border border-input text-sm"
                 >
-                  <option value="">No agent assigned</option>
+                  <option value="">Select an agent</option>
                   {agents.map((agent) => (
                     <option key={agent.id} value={agent.id}>
                       {agent.name} ({agent.email})

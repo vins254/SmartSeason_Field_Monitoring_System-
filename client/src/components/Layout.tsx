@@ -70,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
                   variant="ghost" 
                   size="icon" 
                   onClick={handleLogout}
-                  className="text-slate-500 hover:text-destructive transition-colors"
+                  className="hidden sm:inline-flex text-slate-500 hover:text-destructive transition-colors"
                 >
                   <LogOut className="h-5 w-5" />
                 </Button>
@@ -112,6 +112,13 @@ export default function Layout({ children }: LayoutProps) {
                     </Link>
                   )
                 })}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-destructive hover:bg-red-50 transition-colors text-left"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sign Out
+                </button>
               </nav>
               <div className="mt-4 pt-4 border-t px-3 sm:hidden">
                 <p className="text-sm font-semibold">{user?.name}</p>

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Layout from '@/components/Layout'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/App'
 import { formatDate, getStageColor } from '@/lib/utils'
-import { Map, Sprout, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react'
+import { Map, Sprout, AlertTriangle, CheckCircle, TrendingUp, Plus } from 'lucide-react'
 
 interface Field {
   id: number
@@ -74,9 +75,19 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-secondary">Welcome back, {user?.name}</h1>
-          <p className="text-muted-foreground font-medium">Seasonal overview of field activities and crop progress.</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-secondary">Welcome back, {user?.name}</h1>
+            <p className="text-muted-foreground font-medium">Seasonal overview of field activities and crop progress.</p>
+          </div>
+          {user?.role === 'admin' && (
+            <Link to="/fields/new">
+              <Button className="shadow-sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Field
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Stats Cards */}

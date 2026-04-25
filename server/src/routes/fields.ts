@@ -96,8 +96,8 @@ router.post('/', async (req: AuthRequest, res) => {
 
     const { name, cropType, plantingDate, stage, agentId } = req.body
 
-    if (!name || !cropType || !plantingDate) {
-      return res.status(400).json({ message: 'Name, crop type and planting date are required' })
+    if (!name || !cropType || !plantingDate || !agentId) {
+      return res.status(400).json({ message: 'Name, crop type, planting date, and agent assignment are required' })
     }
 
     const field = await prisma.field.create({

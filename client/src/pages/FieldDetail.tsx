@@ -152,30 +152,32 @@ export default function FieldDetail() {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Link to="/fields">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{field.name}</h1>
-            <p className="text-muted-foreground">{field.cropType}</p>
-          </div>
-          {user?.role === 'admin' && (
-            <div className="flex gap-2">
-              <Link to={`/fields/${field.id}/edit`}>
-                <Button variant="outline">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </Link>
-              <Button variant="destructive" onClick={handleDelete}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <Link to="/fields">
+              <Button variant="ghost" size="icon" className="shrink-0">
+                <ArrowLeft className="h-5 w-5" />
               </Button>
+            </Link>
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-secondary">{field.name}</h1>
+              <p className="text-lg text-muted-foreground font-medium">{field.cropType}</p>
             </div>
-          )}
+            {user?.role === 'admin' && (
+              <div className="flex flex-wrap gap-2 sm:shrink-0">
+                <Link to={`/fields/${field.id}/edit`}>
+                  <Button variant="outline" size="sm" className="shadow-sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                </Link>
+                <Button variant="destructive" size="sm" onClick={handleDelete} className="shadow-sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
