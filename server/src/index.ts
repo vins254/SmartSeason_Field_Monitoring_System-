@@ -5,6 +5,7 @@ import authRouter from './routes/auth'
 import fieldsRouter from './routes/fields'
 import usersRouter from './routes/users'
 import { authenticateToken } from './middleware/auth'
+import prisma from './lib/prisma'
 
 dotenv.config()
 
@@ -33,8 +34,14 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ message: 'Something went wrong!' })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`)
+  try {
+    await prisma.$connect()
+    console.log('Database connected successfully')
+  } catch (error) {
+    console.error('Database connection failed:', error)
+  }
 })
 
 export default app
