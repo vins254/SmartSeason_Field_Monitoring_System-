@@ -90,10 +90,6 @@ export default function Login() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Demo: admin@smartseason.com / admin123<br />
-              Agent: agent@smartseason.com / agent123
-            </p>
           </CardFooter>
         </form>
       </Card>
