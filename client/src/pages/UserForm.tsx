@@ -10,6 +10,11 @@ import { ArrowLeft } from 'lucide-react'
 export default function UserForm() {
   const { id } = useParams()
   const navigate = useNavigate()
+  
+  /**
+   * We use the presence of an ID in the URL to decide if we're in "Add" or "Edit" mode.
+   * This keeps our component dry and reuseable.
+   */
   const isEditing = !!id
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,6 +26,7 @@ export default function UserForm() {
   })
 
   useEffect(() => {
+    // If we're editing, we need to grab the user's current info from the database first.
     if (isEditing) {
       loadUser(parseInt(id))
     }
@@ -39,7 +45,7 @@ export default function UserForm() {
         setFormData({
           name: user.name,
           email: user.email,
-          password: '', // Don't pre-fill password
+          password: '', // We leave this empty; typing into it triggers a password change.
           role: user.role.toUpperCase()
         })
       }
@@ -59,7 +65,11 @@ export default function UserForm() {
       const apiBase = import.meta.env.VITE_API_BASE_URL || ''
       const token = localStorage.getItem('smartseason_token')
       
-      // Construct payload: only include password if it's provided (for new users or password changes)
+      /**
+       * Constructing the payload carefully.
+       * If we're editing and the password field is blank, we don't send a 'password' key at all.
+       * This tells the backend "don't touch the existing password."
+       */
       const payload: any = {
         name: formData.name,
         email: formData.email,

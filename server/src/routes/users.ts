@@ -5,13 +5,21 @@ import { AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
-// Helper to safely parse IDs from request params
+/**
+ * Our "Universal ID Parser". 
+ * Route parameters can sometimes be tricky in TypeScript (unions of strings and arrays),
+ * so this little helper ensures we always get a clean number for our database lookups.
+ */
 function getUserId(id: any): number {
   const val = Array.isArray(id) ? id[0] : id
   return parseInt(val)
 }
 
-// Get all users (admin only)
+/**
+ * Fetching the whole team.
+ * Only Admins have the key to this room. We also normalize the roles to lowercase 
+ * so the frontend doesn't have to worry about "Admin" vs "admin" casing issues.
+ */
 router.get('/', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
@@ -84,7 +92,11 @@ router.post('/', async (req: AuthRequest, res) => {
   }
 })
 
-// Get single user (admin only)
+/**
+ * Single User Detail view.
+ * Used when an Admin wants to see specifically what an agent is up to, 
+ * or before they start editing a profile.
+ */
 router.get('/:id', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
@@ -119,7 +131,11 @@ router.get('/:id', async (req: AuthRequest, res) => {
   }
 })
 
-// Update user (admin only)
+/**
+ * Updating a profile.
+ * Notice how we handle the password: if the Admin leaves the field empty on the frontend,
+ * we simply skip the hashing process and keep the old password as-is.
+ */
 router.put('/:id', async (req: AuthRequest, res) => {
   try {
     if (req.user?.role?.toLowerCase() !== 'admin') {
@@ -135,7 +151,6 @@ router.put('/:id', async (req: AuthRequest, res) => {
       return res.status(404).json({ message: 'User not found' })
     }
 
-    // Prepare update data
     const updateData: any = {}
     if (email) updateData.email = email
     if (name) updateData.name = name
@@ -164,6 +179,7 @@ router.put('/:id', async (req: AuthRequest, res) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
+
 
 // Delete user (admin only)
 router.delete('/:id', async (req: AuthRequest, res) => {

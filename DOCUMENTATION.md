@@ -31,7 +31,11 @@ We implemented a dynamic status calculation rather than a static database field.
 - **The Feature**: A field cannot be created without an assigned agent.
 - **Why?**: In agricultural logistics, a "lost field" (one with no one assigned) is a massive financial risk. We enforced this at both the UI level and the API level to ensure accountability.
 
-### 3. Role-Based Navigation (RBAC)
+### 3. Full User Lifecycle Management (CRUD)
+- **The Feature**: Admins can not only create and delete users but also update their profile details (Name, Email, Role) and reset passwords.
+- **Why?**: Operational flexibility. Staff roles change, emails are updated, and passwords are forgotten. By providing a full management suite, the Admin has total control over the system's human resources without needing database access.
+
+### 4. Role-Based Navigation (RBAC)
 - **The Feature**: The "Users" and "Field Management" tools are hidden or blocked for Field Agents.
 - **Why?**: Agents should focus on their specific crops. By reducing "UI clutter" for agents, they can perform their updates faster while protecting sensitive administrative data.
 

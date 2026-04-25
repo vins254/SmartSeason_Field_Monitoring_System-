@@ -50,7 +50,7 @@ We use a curated palette where colors have specific operational meanings:
 
 1. **Connectivity**: We assume that agents have access to mobile data or Wi-Fi when making updates.
 2. **Standard Growth Cycles**: The system is pre-configured for a 4-stage lifecycle (Planted, Growing, Ready, Harvested).
-3. **Restricted Enrollment**: To keep the system secure, we assumed that only **Administrators** should be able to create new user accounts. There is no "Public Sign-Up" page.
+3. **Restricted Enrollment & Team Management**: To keep the system secure, we assumed that only **Administrators** should be able to create new user accounts. There is no "Public Sign-Up" page. We also implemented a full **User Management Dashboard** for Admins to edit profile details, change roles, or remove accounts.
 
 ---
 
