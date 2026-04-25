@@ -2,6 +2,20 @@
 
 A professional, full-stack agricultural management platform built for farm coordinators and field agents. It provides real-time oversight of crop progress, agent accountability, and operational efficiency.
 
+## 🖼️ System Preview
+
+### Admin Dashboard
+![Admin Dashboard](./screenshots/admin%20dashboard.png)
+*Automated statistics and growth stage distribution analysis.*
+
+### Field Management
+![Field Management](./screenshots/admin%20fields.png)
+*Detailed grid view of all monitored crops and their real-time health status.*
+
+### User Management
+![User Management](./screenshots/user%20dashboard.png)
+*Comprehensive team directory for managing Admins and Field Agents.*
+
 ---
 
 ## 🚀 Getting Started (Fast-Track)

@@ -52,6 +52,30 @@ We implemented a dynamic status calculation rather than a static database field.
 - `src/App.tsx`: The "Brain". It manages the global authentication state and the routing state.
 - `src/components/Layout.tsx`: The "Frame". It provides the consistent sidebar, header, and mobile navigation responsive wrapper.
 
+## 🖼️ Visual Interface Guide
+
+### 1. Administration Hub
+The **Admin Dashboard** is designed for high-level monitoring. It features four quick-stats cards showing Total Fields, Active Fields, At-Risk Fields, and Completed cycles. The **Stage Distribution** bar chart provides a visual breakdown of the crop lifecycle across the entire organization.
+![Admin Dashboard](./screenshots/admin%20dashboard.png)
+
+### 2. Field Lifecycle Management
+The **Fields Listing** page allows coordinators to filter and manage agricultural assets. Each card displays the crop type, current stage (Planted, Growing, etc.), and a smart status badge. Admins can click "Add Field" to launch the creation modal.
+![Field Management](./screenshots/admin%20fields.png)
+
+### 3. Field Agent Workflow
+Agents have a streamlined view focusing only on their assigned fields. The **Agent Dashboard** prioritizes fields needing updates.
+![Agent Dashboard](./screenshots/agent%20dashboard.png)
+
+When an agent selects a field, they can submit a **Field Update**. This involves selecting the current growth stage and adding observational notes, which are then logged with a timestamp for the Admin to review.
+![Agent Field Update](./screenshots/agent%20field.png)
+
+### 4. Team & Account Management
+The **User Management** screen is where the organizational structure is maintained. Admins can view all accounts, their roles, and perform CRUD operations (Create, Update, Delete).
+![User Directory](./screenshots/user%20dashboard.png)
+
+The **Add/Edit User** form includes validation for unique emails and secure password handling.
+![Add User Form](./screenshots/add%20new%20user.png)
+
 ---
 
 ## Deployment Strategy
